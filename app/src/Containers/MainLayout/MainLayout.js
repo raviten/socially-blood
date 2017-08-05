@@ -22,8 +22,4 @@ class MainLayout extends React.Component {
   }
 }
 
-MainLayout.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.element),
-};
-
 export default withWidth()(MainLayout);
