@@ -121,6 +121,22 @@ export default class Connectors extends React.Component {
     });
   }
 
+  twitterLogin() {
+    let self = this;
+    firebase.auth().signInWithPopup(this.state.twitterProvider).then((result) => {
+      let userId = result.user.uid;
+      console.log("twitter login result", result);
+      ls.set('twitterAccess', result.credential.accessToken);
+      firebase.database().ref('users/' + userId + '/creds/twitter').set({
+        'token': result.credential.accessToken
+      });
+      self.setState((prevStat) =>({'twitterConn':true}))
+    }).catch((error) => {
+      console.log('error', error);
+      //more code
+    });
+  }
+
   render() {
     return (
       <div>
@@ -129,6 +145,12 @@ export default class Connectors extends React.Component {
             backgroundColor="#3b5998"
             onClick={this.facebookLogin.bind(this)}
             disabled={this.state.facebookConn}
+        />
+        <RaisedButton label="Login with Twitter"
+            labelColor="#FFF" 
+            backgroundColor="#3b5998" 
+            onClick={this.twitterLogin.bind(this)}
+            disabled={this.state.twitterConn}
         />
       </div>
     );
