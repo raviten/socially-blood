@@ -1,0 +1,86 @@
+{
+  "name": "Socially-Blood",
+  "description": "Best Boilerplate Ever",
+  "version": "1.0.0",
+  "author": {
+    "name": "Prudhvi",
+    "url": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=4.3.0",
+    "npm": ">=4.0.1"
+  },
+  "peerDependencies": {
+    "react": ">=15.x",
+    "react-dom": ">=15.x"
+  },
+  "dependencies": {
+    "axios": "^0.16.2",
+    "babel-polyfill": "^6.23.0",
+    "babel-runtime": "^6.25.0",
+    "fixed-data-table": "^0.6.4",
+    "font-awesome": "^4.7.0",
+    "history": "^4.6.3",
+    "local-storage": "^1.4.2",
+    "lodash": "^4.17.4",
+    "material-ui": "^0.18.7",
+    "moment": "^2.18.1",
+    "prop-types": "^15.5.10",
+    "react": "^15.6.1",
+    "react-datepicker": "^0.52.0",
+    "react-dom": "^15.6.1",
+    "react-flexbox-grid": "^1.1.3",
+    "react-hot-loader": "^3.0.0-beta.7",
+    "react-router-dom": "^4.1.2",
+    "react-swipeable-views": "^0.12.5",
+    "react-tap-event-plugin": "^2.0.1",
+    "react-tooltip": "^3.3.0",
+    "react-transition-group": "^2.2.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.1.2",
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-react-optimize": "^1.0.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "cross-env": "^5.0.2",
+    "css-loader": "^0.28.4",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^0.11.2",
+    "group-css-media-queries-loader": "^1.0.4",
+    "html-webpack-plugin": "^2.30.1",
+    "modernizr-webpack-plugin": "^1.0.6",
+    "node-sass": "^4.5.3",
+    "postcss-loader": "^2.0.6",
+    "sass-loader": "^6.0.6",
+    "strip-loader": "^0.1.2",
+    "style-loader": "^0.18.2",
+    "url-loader": "^0.5.9",
+    "webpack": "^3.4.1",
+    "webpack-dashboard": "^0.4.0",
+    "webpack-dev-middleware": "^1.12.0",
+    "webpack-dev-server": "^2.6.1",
+    "webpack-hot-middleware": "^2.18.2"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=development node server.js"
+  },
+  "reactToolbox": {
+    "include": [
+      "BUTTON",
+      "DATE_PICKER"
+    ],
+    "customProperties": {},
+    "output": "assets/react-toolbox"
+  },
+  "analyze": true,
+  "license": "MIT"
+}
