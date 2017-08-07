@@ -1,23 +1,46 @@
+# Socially blood
 
-Create new app on FB:
-    Get appId and appSecret from facebook
-    Go to https://developers.facebook.com/ 'Add new App' from drop down
+A tool that will post the requirement of blood on different social networking sites and it will also be displayed on this web application.
 
-Permissions:
-    In App Review section request permission for publish_stream
-
-facebook api:
-    Initialize fb sdk on your page
-        https://developers.facebook.com/docs/javascript/reference/FB.init/v2.10
-    Post image using fb api:
-        https://developers.facebook.com/docs/graph-api/photo-uploads
+## Getting Started
+These instructions will get you a copy of the project up and running on your local machine for development. ReactJS is used for front end development
 
 
+### Prerequisites
+
+You need to have nodejs and npm installed on your system
+
+* To install nodejs via [package manager](https://nodejs.org/en/download/package-manager/)
+* Install firebase and firebase tools
+
+```
+npm install firebase
+npm install firebase-tools
+```
+
+### Installing
+
+Clone project locally
+
+Install dependencies via npm
+
+```
+npm install
+```
+
+Once packages are installed go app directory and install dependencies for app
+```
+cd app
+npm install
+```
+To run the application
+```
+npm start
+```
+This command should run webpack dev server
 
 
-For twitter:
-    Go to https://apps.twitter.com/app/new create new app.
 
-First Image need to be uploaded and then use the reference id of image to be used in tweet post
-For image upload: https://dev.twitter.com/rest/reference/post/media/upload
-For tweet update: https://dev.twitter.com/rest/reference/post/statuses/update
+## Contributing
+
+Please read [CONTRIBUTING.md](https://gist.github.com/raviten/821ea1b0c854d0fd023b4698ab7aa5ac) for details on our code of conduct, and the process for submitting pull requests to us.
