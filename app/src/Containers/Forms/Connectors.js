@@ -13,7 +13,8 @@ export default class Connectors extends React.Component {
     let {
       googleConn,
       facebookConn,
-      twitterConn
+      twitterConn,
+      logoutBtnActive
     } = this.getLoginStatus()
     let facebookProvider = new firebase.auth.FacebookAuthProvider();
     facebookProvider.addScope('publish_actions');
@@ -23,7 +24,7 @@ export default class Connectors extends React.Component {
       googleConn: googleConn,
       facebookConn: facebookConn,
       twitterConn: twitterConn,
-
+      logoutBtnActive: logoutBtnActive,
       googleProvider: new firebase.auth.GoogleAuthProvider(),
       facebookProvider: facebookProvider,
       twitterProvider: new firebase.auth.TwitterAuthProvider()
@@ -33,14 +34,21 @@ export default class Connectors extends React.Component {
   getLoginStatus() {
     let googleConn = false,
       facebookConn = false,
-      twitterConn = false;
+      twitterConn = false,
+      logoutBtnActive = false;
     if (ls.get('facebookAccess')) {
       facebookConn = true;
+      logoutBtnActive = true;
+    }
+    if (ls.get('twitterAccess')) {
+      twitterConn = true;
+      logoutBtnActive = true;
     }
     return {
       googleConn,
       facebookConn,
-      twitterConn
+      twitterConn,
+      logoutBtnActive
     }
   }
 
@@ -55,57 +63,21 @@ export default class Connectors extends React.Component {
     };
     firebase.initializeApp(config);
 
-    // firebase.auth().onAuthStateChanged(function(user) {
-    //   if (user) {
-    //     console.log(user);
-    //     var db = firebase.database();
-    //     var ref = db.ref("users");
-    //     var usersRef = ref.child(userId);
-    //     console.log(userId, usersRef);
-    //     var d = {
-    //         date_of_birth: "June 23, 1912",
-    //         full_name: "Alan Turing"
-    //       };
-    //     console.log(d);
-    //     usersRef.set(d);
-    //     // User is signed in.
-    //   } else {
-    //     // No user is signed in.
-    //   }
-    // });
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // Need to populate his access tokens here
+        console.log(user);
+      } else {
+        // No user is signed in.
+      }
+    });
   }
 
   componentDidUpdate() {
 
   }
 
-  // facebookPopUp2() {
-  //   var uiConfig = {
-  //     callbacks: {
-  //       signInSuccess: function(currentUser, credential, redirectUrl) {
-  //         console.log('yay');
-  //         return true;
-  //       },
-  //       uiShown: function() {
-  //         document.getElementById('loader').style.display = 'none';
-  //       }
-  //     },
-  //     credentialHelper: firebaseui.auth.CredentialHelper.ACCOUNT_CHOOSER_COM,
-  //     queryParameterForWidgetMode: 'mode',
 
-  //     // queryParameterForSignInSuccessUrl: 'signInSuccessUrl',
-  //     // signInSuccessUrl: './second.html',
-
-  //     signInFlow: 'popup',
-
-  //     signInOptions: [
-  //       firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-  //     ],
-  //   };
-
-  //   var ui = new firebaseui.auth.AuthUI(firebase.auth());
-  //   ui.start('#firebaseui-auth-container', uiConfig);
-  // }
 
   facebookLogin() {
     let self = this;
@@ -134,15 +106,46 @@ export default class Connectors extends React.Component {
     });
   }
 
+  twitterLogin() {
+    let self = this;
+    firebase.auth().signInWithPopup(this.state.twitterProvider).then((result) => {
+      let userId = result.user.uid;
+      console.log("twitter login result", result);
+      var d = {
+        'token': result.credential.accessToken,
+        'secret': result.credential.secret,
+        'screen_name': result.additionalUserInfo.profile.screen_name,
+        'id_str': result.additionalUserInfo.profile.id_str
+      };
+      ls.set('twitterAccess', d);
+      firebase.database().ref('users/' + userId + '/creds/twitter').set(d);
+      firebase.database().ref('users/' + userId + '/profile/').set({
+        'email': result.additionalUserInfo.profile.email,
+        'first_name': result.additionalUserInfo.profile.name,
+        'last_name': '',
+        'gender': result.additionalUserInfo.profile.gender || '',
+      });
+      self.setState((prevStat) =>({'twitterConn':true}))
+    }).catch((error) => {
+      console.log('error', error);
+      //more code
+    });
+  }
+
   logout() {
     firebase.auth().signOut().then(function() {
       ls.remove('facebookAccess');
+      ls.remove('twitterAccess');
+      self.setState({
+        'facebookConn': false,
+        'twitterConn': false,
+        'logoutBtnActive': false
+      });
       console.log('logged out');
     }, function(error) {
       console.log('error');
-      // An error happened.
     });
-  }
+  };
 
   render() {
     return (
@@ -153,10 +156,17 @@ export default class Connectors extends React.Component {
             onClick={this.facebookLogin.bind(this)}
             disabled={this.state.facebookConn}
         />
+        <RaisedButton label="Login with Twitter"
+            labelColor="#FFF"
+            backgroundColor="#3b5998"
+            onClick={this.twitterLogin.bind(this)}
+            disabled={this.state.twitterConn}
+        />
         <RaisedButton label="Logout"
             labelColor="#FFF"
             backgroundColor="#3b5998"
             onClick={this.logout.bind(this)}
+            disabled={!this.state.logoutBtnActive}
         />
       </div>
     );
