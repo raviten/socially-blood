@@ -15,13 +15,17 @@ export default class Connectors extends React.Component {
       facebookConn,
       twitterConn
     } = this.getLoginStatus()
+    let facebookProvider = new firebase.auth.FacebookAuthProvider();
+    facebookProvider.addScope('publish_actions');
+
+
     this.state = {
       googleConn: googleConn,
       facebookConn: facebookConn,
       twitterConn: twitterConn,
 
       googleProvider: new firebase.auth.GoogleAuthProvider(),
-      facebookProvider: new firebase.auth.FacebookAuthProvider(),
+      facebookProvider: facebookProvider,
       twitterProvider: new firebase.auth.TwitterAuthProvider()
     }
   }
@@ -108,9 +112,18 @@ export default class Connectors extends React.Component {
     // firebase.auth().signInWithRedirect(this.state.facebookProvider);
     firebase.auth().signInWithPopup(this.state.facebookProvider).then(function(result) {
       let userId = result.user.uid;
-      ls.set('facebookAccess', result.credential.accessToken);
-      firebase.database().ref('users/' + userId + '/creds/facebook').set({
-        'token': result.credential.accessToken
+      console.log('result', result);
+      let d = {
+        'token': result.credential.accessToken,
+        'fbid': result.additionalUserInfo.profile.id
+      }
+      ls.set('facebookAccess', d);
+      firebase.database().ref('users/' + userId + '/creds/facebook').set(d);
+      firebase.database().ref('users/' + userId + '/profile/').set({
+        'email': result.additionalUserInfo.profile.email,
+        'first_name': result.additionalUserInfo.profile.first_name,
+        'last_name': result.additionalUserInfo.profile.last_name,
+        'gender': result.additionalUserInfo.profile.gender,
       });
       self.setState({
         'facebookConn': true
@@ -118,6 +131,16 @@ export default class Connectors extends React.Component {
     }).catch(function(error) {
       console.log('error', error);
       // Handle Errors here.
+    });
+  }
+
+  logout() {
+    firebase.auth().signOut().then(function() {
+      ls.remove('facebookAccess');
+      console.log('logged out');
+    }, function(error) {
+      console.log('error');
+      // An error happened.
     });
   }
 
@@ -129,6 +152,11 @@ export default class Connectors extends React.Component {
             backgroundColor="#3b5998"
             onClick={this.facebookLogin.bind(this)}
             disabled={this.state.facebookConn}
+        />
+        <RaisedButton label="Logout"
+            labelColor="#FFF"
+            backgroundColor="#3b5998"
+            onClick={this.logout.bind(this)}
         />
       </div>
     );
