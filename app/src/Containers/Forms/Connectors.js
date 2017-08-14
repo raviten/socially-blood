@@ -36,14 +36,16 @@ export default class Connectors extends React.Component {
       facebookConn = false,
       twitterConn = false,
       logoutBtnActive = false;
-    if (ls.get('facebookAccess')) {
-      facebookConn = true;
-      logoutBtnActive = true;
+    let access = ls.get('access') || {};
+    for(let key in access) {
+        console.log(key);
+        if (key == 'facebook') {
+          facebookConn = true;
+        } else if (key == 'twitter') {
+          twitterConn = true;
+      }
     }
-    if (ls.get('twitterAccess')) {
-      twitterConn = true;
-      logoutBtnActive = true;
-    }
+    logoutBtnActive = facebookConn || twitterConn || googleConn;
     return {
       googleConn,
       facebookConn,
@@ -52,8 +54,35 @@ export default class Connectors extends React.Component {
     }
   }
 
+  postAuthentication(user) {
+    let self = this;
+    let userId = user.uid;
+    firebase.database().ref('users/' + userId + '/creds/').on(
+      'value',
+      function(snapshot) {
+        let access = snapshot.val();
+        ls.set('access', access);
+        for(let key in access) {
+          console.log(key);
+          if (key == 'facebook') {
+            self.setState({
+              facebookConn: true,
+              logoutBtnActive: true
+            })
+          } else if (key == 'twitter') {
+            self.setState({
+              twitterConn: true,
+              logoutBtnActive: true
+            })
+          }
+        }
+      }
+    );
+  }
+
   componentDidMount() {
-    var config = {
+    let self = this;
+    let config = {
       apiKey: "AIzaSyDuEaisA0lm5lTKCMCbj02SPEXETxG9Qbw",
       authDomain: "socially-blood.firebaseapp.com",
       databaseURL: "https://socially-blood.firebaseio.com",
@@ -62,11 +91,9 @@ export default class Connectors extends React.Component {
       messagingSenderId: "150982221530"
     };
     firebase.initializeApp(config);
-
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
-        // Need to populate his access tokens here
-        console.log(user);
+        self.postAuthentication(user);
       } else {
         // No user is signed in.
       }
@@ -77,11 +104,8 @@ export default class Connectors extends React.Component {
 
   }
 
-
-
   facebookLogin() {
     let self = this;
-    // firebase.auth().signInWithRedirect(this.state.facebookProvider);
     firebase.auth().signInWithPopup(this.state.facebookProvider).then(function(result) {
       let userId = result.user.uid;
       console.log('result', result);
@@ -89,17 +113,12 @@ export default class Connectors extends React.Component {
         'token': result.credential.accessToken,
         'fbid': result.additionalUserInfo.profile.id
       }
-      ls.set('facebookAccess', d);
       firebase.database().ref('users/' + userId + '/creds/facebook').set(d);
       firebase.database().ref('users/' + userId + '/profile/').set({
         'email': result.additionalUserInfo.profile.email,
         'first_name': result.additionalUserInfo.profile.first_name,
         'last_name': result.additionalUserInfo.profile.last_name,
         'gender': result.additionalUserInfo.profile.gender,
-      });
-      self.setState({
-        'facebookConn': true,
-        'logoutBtnActive': true
       });
     }).catch(function(error) {
       console.log('error', error);
@@ -118,7 +137,6 @@ export default class Connectors extends React.Component {
         'screen_name': result.additionalUserInfo.profile.screen_name,
         'id_str': result.additionalUserInfo.profile.id_str
       };
-      ls.set('twitterAccess', d);
       firebase.database().ref('users/' + userId + '/creds/twitter').set(d);
       firebase.database().ref('users/' + userId + '/profile/').set({
         'email': result.additionalUserInfo.profile.email,
@@ -126,21 +144,13 @@ export default class Connectors extends React.Component {
         'last_name': '',
         'gender': result.additionalUserInfo.profile.gender || '',
       });
-      self.setState({
-        'twitterConn':true,
-        'logoutBtnActive':true
-    }, function(error) {
-      console.log('error', error);
-      //more code
     });
-  });
   }
 
   logout() {
     var self = this;
     firebase.auth().signOut().then(function() {
-      ls.remove('facebookAccess');
-      ls.remove('twitterAccess');
+      ls.remove('access');
       self.setState({
         'facebookConn': false,
         'twitterConn': false,
