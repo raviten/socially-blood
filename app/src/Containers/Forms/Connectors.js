@@ -98,7 +98,8 @@ export default class Connectors extends React.Component {
         'gender': result.additionalUserInfo.profile.gender,
       });
       self.setState({
-        'facebookConn': true
+        'facebookConn': true,
+        'logoutBtnActive': true
       });
     }).catch(function(error) {
       console.log('error', error);
@@ -125,14 +126,18 @@ export default class Connectors extends React.Component {
         'last_name': '',
         'gender': result.additionalUserInfo.profile.gender || '',
       });
-      self.setState((prevStat) =>({'twitterConn':true}))
-    }).catch((error) => {
+      self.setState({
+        'twitterConn':true,
+        'logoutBtnActive':true
+    }, function(error) {
       console.log('error', error);
       //more code
     });
+  });
   }
 
   logout() {
+    var self = this;
     firebase.auth().signOut().then(function() {
       ls.remove('facebookAccess');
       ls.remove('twitterAccess');
